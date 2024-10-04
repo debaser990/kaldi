@@ -39,7 +39,7 @@
 
 # This should be incremented after any significant change to the configure
 # script, i.e. any change affecting kaldi.mk or the build system as a whole.
-CONFIGURE_VERSION=14
+CONFIGURE_VERSION=15
 
 # We support bash version 3.2 (Macs still ship with this version as of 2019)
 # and above.
@@ -434,6 +434,7 @@ Please open an issue at https://github.com/kaldi-asr/kaldi/issues and include\
             #8_*) CUDA_ARCH="-gencode arch=compute_53,code=sm_53 -gencode arch=compute_62,code=sm_62" ;;
             9_*) CUDA_ARCH="-gencode arch=compute_53,code=sm_53 -gencode arch=compute_62,code=sm_62" ;;
             10_*|11_*) CUDA_ARCH="-gencode arch=compute_53,code=sm_53 -gencode arch=compute_62,code=sm_62 -gencode arch=compute_72,code=sm_72" ;;
+            12_*) CUDA_ARCH="-gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90" ;;
             *) echo "Unsupported CUDA_VERSION (CUDA_VERSION=$CUDA_VERSION), please report it to Kaldi mailing list, together with 'nvcc -h' or 'ptxas -h' which lists allowed -gencode values..."; exit 1 ;;
           esac
         ;;
@@ -1024,6 +1025,14 @@ OPENFST_VER_NUM=$(echo $OPENFST_VER | sed 's/\./ /g' | xargs printf "%d%02d%02d"
 if [ $OPENFST_VER_NUM -lt 10600 ]; then
   failure "OpenFst-$OPENFST_VER is not supported. You need OpenFst >= 1.6.0.)"
 fi
+
+if [ $OPENFST_VER_NUM -lt 10800 ]; then
+  echo "CXXLANGVERSION = c++14"
+else
+  echo "CXXLANGVERSION = c++17"
+fi >> kaldi.mk
+
+echo "OPENFSTVER = $OPENFST_VER_NUM" >> kaldi.mk
 echo "OPENFSTINC = $FSTROOT/include" >> kaldi.mk
 if $static_fst ; then
   OPENFSTLIBS="$FSTROOT/lib/libfst.a"
